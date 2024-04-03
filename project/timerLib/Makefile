@@ -23,4 +23,4 @@ install: libTimer.a
 
 clean:
 
-	rm -f timer.a *.o
+	rm -f timerLib.a *.o

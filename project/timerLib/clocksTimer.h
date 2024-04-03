@@ -5,5 +5,4 @@ void configureClocks();
 void enableWDTInterrupts();
 void timerAUpmode();
 
-
 #endif
