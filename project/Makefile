@@ -1,28 +1,26 @@
-all:
-	(cd timerLib && make install)
-	(cd 1-led && make)
-	(cd 2* && make)
-	(cd 3* && make)
-	(cd 4* && make)
-	(cd 5* && make)
-	(cd 6* && make)
-	(cd 7* && make)
-	(cd 8* && make)
-	(cd 9* && make)
-	(cd 10* && make)
-	(cd 11* && make)
+# makfile configuration
+COMMON_OBJECTS  = main.o 
+CPU             = msp430g2553
+CFLAGS          = -mmcu=${CPU} -I../h
+LDFLAGS		= -L/opt/ti/msp430_gcc/include 
+
+#switch the compiler (for the internal make rules)
+CC              = msp430-elf-gcc
+AS              = msp430-elf-as
+
+all: led.elf 
+
+#additional rules for files
+led.elf: ${COMMON_OBJECTS} 
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^ ../lib/libTimer.a
+
+load: led.elf
+	msp430loader.sh led.elf
 
 clean:
-	(cd timerLib && make clean)
-	(cd 1-led && make clean)
-	(cd 2* && make clean)
-	(cd 3* && make clean)
-	(cd 4* && make clean)
-	(cd 5* && make clean)
-	(cd 6* && make clean)
-	(cd 7* && make clean)
-	(cd 8* && make clean)
-	(cd 9* && make clean)
-	(cd 10* && make clean)
-	(cd 11* && make clean)
-	rm -rf h lib
+	rm -f *.o *.elf
+
+main.o: led.h
+
+wdInterruptHandler.o:  led.h
+
