@@ -20,7 +20,7 @@ int greenBlinkCount = 0;  // cycles 0...greenBlinkLimit-1
 int redBlinkLimit = 5;  // duty cycle = 1/redBlinkLimit
 int redBlinkCount = 0;  // cycles 0...redBlinkLimit-1
 int brightness = 0; // brightness level
-
+int secondCount = 0; //state var representing repeating time 0…1s
 
 void
 __interrupt_vec(WDT_VECTOR) WDT()	/* 250 interrupts/sec */
@@ -30,9 +30,9 @@ __interrupt_vec(WDT_VECTOR) WDT()	/* 250 interrupts/sec */
   if (greenBlinkCount >= greenBlinkLimit) { // on for 1 interrupt period
     greenBlinkCount = 0;
     if (brightness >= greenBlinkLimit)
-      P1OUT &= ~LED_GREEN; //full off
-    else if (brightness > 0)
-            P1OUT |= LED_GREEN; // fully on
+      P1OUT |= LED_GREEN; //full off
+  else
+    P1OUT &= ~LED_GREEN; // fully on
   }
 
    // handle red LED blinking
@@ -40,9 +40,9 @@ __interrupt_vec(WDT_VECTOR) WDT()	/* 250 interrupts/sec */
    if (redBlinkCount >= redBlinkLimit) { // on for 1 interrupt period
      redBlinkCount = 0;
      if (brightness >= redBlinkLimit)
-       P1OUT &= ~LED_RED; // fully off
-     else if (brightness > 0)
-       P1OUT |= LED_RED; // fully on
+       P1OUT |= LED_RED; // fully off
+   else
+     P1OUT &= ~LED_RED; // fully on
    }
     
 
@@ -51,4 +51,19 @@ __interrupt_vec(WDT_VECTOR) WDT()	/* 250 interrupts/sec */
     if (brightness >= greenBlinkLimit) {
         brightness = 0;
     }
+
+     // measure a second                                                                                                                                                                                       
+  secondCount ++;
+  if (secondCount >= 250) {  // once each second                                                                                                                                                            
+    secondCount = 0;
+    greenBlinkLimit ++;           // reduce duty cycle
+    redBlinkLimit ++;
+    
+    if (greenBlinkLimit >= 8)     // but don't let duty cycle go below 1/7.                                                                                                                                      
+      greenBlinkLimit = 0;
+
+    if (redBlinkLimit >= 8)
+
+      redBlinkLimit = 0;
+  }
 }
