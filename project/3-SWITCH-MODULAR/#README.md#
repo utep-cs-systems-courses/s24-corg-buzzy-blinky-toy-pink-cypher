@@ -2,7 +2,7 @@
 This program uses interrupts to detect when a switch is pressed or
 released.
 
-Both LEDS are illuminated, Press S1, and the green LED remains illuminated while the red LED will turn off. Then green will remain illuminated while red LED will only tun on when S1 pressed.
+Both LEDS, Press S1, and the green LED remains illuminated while the red LED will turn off.
 
 This implementation separates different domains of control to different files:
 
