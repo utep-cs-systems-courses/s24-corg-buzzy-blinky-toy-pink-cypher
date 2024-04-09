@@ -1,6 +1,7 @@
-A#include <msp430.h>
+#include <msp430.h>
 #include "libTimer.h"
 #include "led.h"
+#include "switches.h" // Include the switches header file
 
 // Alternate LEDs from Off, Green, and Red
 
@@ -11,62 +12,47 @@ int main(void) {
 
   configureClocks();            /* setup master oscillator, CPU & peripheral clocks */
   enableWDTInterrupts();        /* enable periodic interrupt */
+  
+  switch_init();                // Initialize switches
 
   or_sr(0x18);                  /* CPU off, GIE on */
 }
 
-// global state vars that control blinking
-int greenBrightness = 0;  // brightness level for green LED
-int redBrightness = 0;  // brightness level for red LED
-int greenDirection = 1;  // direction of green brightness change (dim to bright or bright to dim)
-int redDirection = 1;  // direction of red brightness change (dim to bright or bright to dim)
-int greenSpeed = 5;  // speed of green brightness change
-int redSpeed = 3;  // speed of red brightness change
-int secondCount = 0; // state var representing repeating time 0…1s
-
-void __interrupt_vec(WDT_VECTOR) WDT() { /* 250 interrupts/sec */
-    // handle green LED brightness change
-    greenBrightness += greenDirection;
-    if (greenBrightness >= greenSpeed || greenBrightness <= 0) {
-        greenDirection = -greenDirection;  // change direction when reaching limits
-    }
-    if (greenBrightness > 0) {
-        P1OUT |= LED_GREEN;  // fully on
-    } else {
-        P1OUT &= ~LED_GREEN;  // fully off
-    }
-
-    // handle red LED brightness change
-    redBrightness += redDirection;
-    if (redBrightness >= redSpeed || redBrightness <= 0) {
-        redDirection = -redDirection;  // change direction when reaching limits
-    }
-    if (redBrightness > 0) {
-        P1OUT |= LED_RED;  // fully on
-    } else {
-        P1OUT &= ~LED_RED;  // fully off
-    }
-
-    // update brightness levels
-    secondCount++;
-    if (secondCount >= 250) {  // once each second
-        secondCount = 0;
-        greenSpeed++;  // change the speed of green brightness change
-        redSpeed++;  // change the speed of red brightness change
-    }
+// Function to handle LED control based on switch state
+void switchLEDControl(int sw_state) {
+  switch(sw_state) {
+    case 1: // SW1 pressed
+      P1OUT |= LED_GREEN;  // fully on
+      P1OUT &= ~LED_RED;  // fully off
+      break;
+    case 2: // SW2 pressed
+      P1OUT &= ~LED_GREEN;  // fully off
+      P1OUT |= LED_RED;  // fully on
+      break;
+    case 3: // SW3 pressed
+      P1OUT |= LED_GREEN;  // fully on
+      P1OUT |= LED_RED;  // fully on
+      break;
+    case 4: // SW4 pressed
+      P1OUT &= ~LED_GREEN;  // fully off
+      P1OUT &= ~LED_RED;  // fully off
+      break;
+    default:
+      break;
+  }
 }
 
 // blink state machine
-static int blinkLimit = 5;   //  state var representing reciprocal of duty cycle 
+static int blinkLimit = 5;   // state var representing reciprocal of duty cycle 
 void blinkUpdate() // called every 1/250s to blink with duty cycle 1/blinkLimit
 {
   static int blinkCount = 0; // state var representing blink state
   blinkCount ++;
   if (blinkCount >= blinkLimit) {
     blinkCount = 0;
-    ledControl(1);
+    ledControl(1); 
   } else
-    ledControl(0);
+    ledControl(0); 
 }
 
 void oncePerSecond() // repeatedly start bright and gradually lower duty cycle, one step/sec
@@ -90,4 +76,13 @@ void timeAdvStateMachines() // called every 1/250 sec
 {
   blinkUpdate();
   secondUpdate();
+}
+
+// Interrupt service routine for switches
+void __interrupt_vec(PORT2_VECTOR) Port_2() {
+  if (P2IFG & SWITCHES) { // Check if any switch caused the interrupt
+    P2IFG &= ~SWITCHES;   // Clear the interrupt flags for the switches
+    switch_interrupt_handler(); // Handle the switch interrupt
+    switchLEDControl(switch_state_down); // Control LEDs based on switch state
+  }
 }
