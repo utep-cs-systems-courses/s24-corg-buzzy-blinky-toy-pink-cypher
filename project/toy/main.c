@@ -64,9 +64,9 @@ void blinkUpdate() // called every 1/250s to blink with duty cycle 1/blinkLimit
   blinkCount ++;
   if (blinkCount >= blinkLimit) {
     blinkCount = 0;
-    greenControl(1);
+    ledControl(1);
   } else
-    greenControl(0);
+    ledControl(0);
 }
 
 void oncePerSecond() // repeatedly start bright and gradually lower duty cycle, one step/sec
