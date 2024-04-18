@@ -1,14 +1,21 @@
-# Makefile configuration
+# Makefile configuration                                                                                                                                                                                    
 COMMON_OBJECTS = main.o switches.o
 CPU = msp430g2553
-CFLAGS = -mmcu=${CPU} -I../h -L/opt/ti/msp430_gcc/include
+CFLAGS = -mmcu=${CPU} -I ../h -L/opt/ti/msp430_gcc/include
 CC = msp430-elf-gcc
 AS = msp430-elf-as
 
 all: led.elf led-c.elf led-s.elf buzzer.elf
 
-led.elf: ${COMMON_OBJECTS}
-	${CC} ${CFLAGS} -o $@ $^ ledControl-c.o ../lib/libTimer.a
+ledControl-c.o: led.h ledControl_c.c
+	${CC} ${CFLAGS} -c -o $@ ledControl_c.c
+
+led-on-c.o: led.h ledControl_c.c
+	${CC} ${CFLAGS} -c -o $@ ledControl_c.c
+
+
+led.elf: ${COMMON_OBJECTS} ledControl-c.o
+	${CC} ${CFLAGS} -o $@ $^ ../lib/libTimer.a
 
 led-c.elf: ${COMMON_OBJECTS} ledControl-c.o
 	${CC} ${CFLAGS} -o $@ $^ ../lib/libTimer.a
@@ -33,10 +40,7 @@ clean:
 
 main.o: led.h switches.h
 switches.o: switches.h
-ledControl-c.o: led.h
 ledControl-s.o: led.h
 wdInterruptHandler.o: led.h
-led-on-c.o: led.h ledControl_c.c
-
 buzzer.o: buzzer.h
 buzzerMain.o: buzzer.h
