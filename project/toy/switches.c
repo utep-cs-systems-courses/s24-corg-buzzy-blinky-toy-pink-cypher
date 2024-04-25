@@ -1,37 +1,46 @@
 #include <msp430.h>
 #include "switches.h"
-#include "buzzer.h" // Include buzzer header file
+#include "led.h"
+#include "buzzer.h"
+#include "stateMachines.h"
 
-char switch_state_down = 0; // Definition of the variable
+char sw1_state, sw2_state, sw3_state, sw4_state; // Variables to track switch states
+char sw_state_changed; // Flag to indicate if switch state changed
+char switch_state = 0; // Variable to store the current switch state, initialized to 0
 
-static char switch_update_interrupt_sense()
-{
+static char switch_update_interrupt_sense(){
   char p2val = P2IN;
-  // update switch interrupt to detect changes from current buttons
-  P2IES |= (p2val & SWITCHES);    // if switch up, sense down
-  P2IES &= (p2val | ~SWITCHES);   // if switch down, sense up
+  P2IES |= (p2val & SWITCHES);
+  P2IES &= (p2val | ~SWITCHES);
   return p2val;
 }
 
-void switch_interrupt_handler()
-{
-  char p2val = switch_update_interrupt_sense();
-
-  // Stop the buzzer when SW0 is pressed
-  if ((p2val & SW0) == 0) // Check if SW0 is pressed
-  {
-    buzzer_stop(); // Stop the buzzer
-  }
-
-  switch_state_down = (p2val & SWITCHES); // switch's bit is 1 when button is up
+void switch_init(){
+  P2REN |= SWITCHES;
+  P2IE = SWITCHES;
+  P2OUT |= SWITCHES;
+  P2DIR &= ~SWITCHES;
+  switch_update_interrupt_sense();
 }
 
-void switch_init() // setup switch
-{
-  P2REN |= SWITCHES;    // enables resistors for switches
-  P2IE = SWITCHES;      // enable interrupts from switches
-  P2OUT |= SWITCHES;    // pull-ups for switches
-  P2DIR &= ~SWITCHES;   // set switches' bits for input
-  switch_update_interrupt_sense();
-  switch_interrupt_handler();    // to initially call the handler to set the buzzer state
+void switch_interrupt_handler(){
+  char p2val = switch_update_interrupt_sense();
+
+  // Update individual switch states
+  sw1_state = (p2val & SW1) ? 0 : 1; // Indicates which button of the 4 was pressed
+  sw2_state = (p2val & SW2) ? 0 : 1;
+  sw3_state = (p2val & SW3) ? 0 : 1;
+  sw4_state = (p2val & SW4) ? 0 : 1;
+
+  // Set switch state based on pressed button
+  if (sw1_state)
+    switch_state = 1;
+  if (sw2_state)
+    switch_state = 2;
+  if (sw3_state)
+    switch_state = 3;
+  if (sw4_state)
+    switch_state = 4;
+
+  sw_state_changed = 1; // Signal that a button was pressed
 }

@@ -6,8 +6,8 @@
 // variables to track LED states and switch states
 unsigned char red_on = 0,green_on = 0;
 unsigned char led_switch = 0;
-char switch2_state,switch3_state;
-char switch_state_changed;
+char sw2_state,sw3_state;
+char sw_state_changed;
 
 // arrays to map LED values
 static char redValue[] = {0,LED_RED},greenValue[] = {0,LED_GREEN};
@@ -17,7 +17,7 @@ static char redValue[] = {0,LED_RED},greenValue[] = {0,LED_GREEN};
 void led_init(){
   P1DIR |= LEDS;
   led_switch = 1;
-  switch_state_changed = 1; 
+  sw_state_changed = 1; 
   led_update();
 }
 
@@ -36,21 +36,21 @@ void led_update(){
   }
 
   // if switch state changed and switch state is 2
-  if (switch_state_changed && switch_state == 2){
-    flags |= switch2_state ? LED_GREEN : 0; //green then when pressed switch to red
-    flags |= switch2_state ? 0 : LED_RED;
+  if (sw_state_changed && switch_state == 2){
+    flags |= sw2_state ? LED_GREEN : 0; //green then when pressed switch to red
+    flags |= sw2_state ? 0 : LED_RED;
     
     P1OUT &= (0xff^LEDS) | flags;
     P1OUT |= flags;
   }
 
     // if switch state changed and switch state is 3
-  if (switch_state_changed && switch_state == 3){
-    flags |= switch3_state ? 0 : LED_GREEN; //red and when pressed goes off
+  if (sw_state_changed && switch_state == 3){
+    flags |= sw3_state ? 0 : LED_GREEN; //red and when pressed goes off
 
     P1OUT &= (0xff^LEDS) | flags;
     P1OUT |= flags;
   }
   // reset switch state change flag
-  switch_state_changed = 0;
+  sw_state_changed = 0;
 } 
