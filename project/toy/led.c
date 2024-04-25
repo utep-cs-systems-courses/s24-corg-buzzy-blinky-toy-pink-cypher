@@ -1,7 +1,7 @@
 #include <msp430.h>
 #include "led.h"
 #include "stateMachines.h"
-
+#include "switches.h"
 
 // variables to track LED states and switch states
 unsigned char red_on = 0,green_on = 0;
