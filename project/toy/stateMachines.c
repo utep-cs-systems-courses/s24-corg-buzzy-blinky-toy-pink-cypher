@@ -54,7 +54,7 @@ void switch_state_advance(){
     buzzer_set_period(700);
     break;
   case 4:
-    buzzer_off();
+    buzzer_stop();
     break;
   }
   led_update(); // After the state is set, update the LEDs accordingly
