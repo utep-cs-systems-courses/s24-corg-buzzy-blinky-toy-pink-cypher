@@ -6,8 +6,6 @@
 // variables to track LED states and switch states
 unsigned char red_on = 0,green_on = 0;
 unsigned char led_switch = 0;
-char sw2_state,sw3_state;
-char sw_state_changed;
 
 // arrays to map LED values
 static char redValue[] = {0,LED_RED},greenValue[] = {0,LED_GREEN};
