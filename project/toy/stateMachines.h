@@ -4,6 +4,6 @@
 void led_state_advance();
 void switch_state_advance();
 
-extern int switch_state;
+extern char switch_state;
 
 #endif
