@@ -38,7 +38,7 @@ void led_state_advance(){
   case GREEN: state_changed = toggle_green(); color = RED; break;
   }
   
-  led_changed = state_changed;
+  led_switch = state_changed;
   led_update();
 }
 
