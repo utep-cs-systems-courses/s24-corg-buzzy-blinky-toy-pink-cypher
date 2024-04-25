@@ -6,7 +6,7 @@
 
 char sw1_state, sw2_state, sw3_state, sw4_state; // Variables to track switch states
 char sw_state_changed; // Flag to indicate if switch state changed
-char switch_state = 0; // Variable to store the current switch state, initialized to 0
+switch_state = 0; // Variable to store the current switch state, initialized to 0
 
 static char switch_update_interrupt_sense(){
   char p2val = P2IN;
